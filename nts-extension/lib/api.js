@@ -1,17 +1,11 @@
 // NTS API client.
-//
-// UNVERIFIED: every endpoint and field name below is taken from the public
-// nts.live site behavior as of the time this was written, not from a live
-// request (this build environment had no network access to nts.live).
-// Before relying on this in production, open the network tab on nts.live
-// and nts.live/search and diff the real responses against the parsing
-// below. All parsing here is defensive (falls back to several possible
-// field names / shapes) specifically because of that uncertainty.
+// Live response shape verified against real /api/v2/live output (2026-06-25).
+// Stream URLs confirmed working. /mixtapes and /search remain unverified —
+// see comments on those functions.
 
 const API_BASE = 'https://www.nts.live/api/v2';
 
-// UNVERIFIED stream URLs — confirm via the <audio>/player config on nts.live
-// if these 404.
+// Stream URLs confirmed working 2026-06-25.
 export const LIVE_STREAMS = {
   1: 'https://stream-relay-geo.ntslive.net/stream',
   2: 'https://stream-relay-geo.ntslive.net/stream2',
@@ -29,31 +23,28 @@ function firstDefined(...values) {
   return values.find((v) => v !== undefined && v !== null);
 }
 
-// Normalizes one entry of GET /live into a stable shape regardless of which
-// field-name variant the real API uses.
+// Verified against real /api/v2/live response.
+// Artwork lives at now.embeds.details.media.picture_large.
 function parseLiveChannel(entry) {
-  const now = entry.now || entry.current || {};
+  const now = entry.now || {};
   const next = entry.next || {};
-  const details = now.embeds?.details || now.details || {};
+  const details = now.embeds?.details || {};
+  const media = details.media || {};
   return {
-    channelName: firstDefined(entry.channel_name, entry.channelName, entry.channel),
+    channelName: entry.channel_name,
     now: {
-      title: firstDefined(now.broadcast_title, now.title, now.name),
-      startTimestamp: firstDefined(now.start_timestamp, now.startTimestamp),
-      endTimestamp: firstDefined(now.end_timestamp, now.endTimestamp),
-      artworkUrl: firstDefined(
-        details.artwork_url,
-        details.picture_large,
-        details.artwork,
-        now.artwork_url
-      ),
-      location: details.location,
+      title: now.broadcast_title,
+      startTimestamp: now.start_timestamp,
+      endTimestamp: now.end_timestamp,
+      artworkUrl: media.picture_large || media.picture_medium_large,
+      location: details.location_long,
       description: details.description,
-      links: details.links,
+      genres: details.genres || [],
+      moods: details.moods || [],
     },
     next: {
-      title: firstDefined(next.broadcast_title, next.title, next.name),
-      startTimestamp: firstDefined(next.start_timestamp, next.startTimestamp),
+      title: next.broadcast_title,
+      startTimestamp: next.start_timestamp,
     },
   };
 }
@@ -83,6 +74,7 @@ function parseMixtape(entry) {
   };
 }
 
+// UNVERIFIED: confirm field names against real /api/v2/mixtapes response.
 export async function fetchMixtapes() {
   const json = await getJson(`${API_BASE}/mixtapes`);
   const results = json.results || json.data || [];
@@ -118,7 +110,7 @@ function parseSearchResult(entry) {
   };
 }
 
-// UNVERIFIED path/params — confirm via network tab on nts.live/search.
+// UNVERIFIED: confirm path, params, and response shape via network tab on nts.live/search.
 export async function search(query, types = ['show', 'episode']) {
   const params = new URLSearchParams({ q: query });
   types.forEach((t) => params.append('types[]', t));
