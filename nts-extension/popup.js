@@ -158,6 +158,7 @@ async function renderNowPlaying(state) {
   els.npSub.textContent = source ? (source.type === 'live' ? `NTS ${source.id}` : 'Infinite Mixtape') : '';
   els.playPause.textContent = state.playing ? '⏸' : '▶';
   els.volume.value = state.volume;
+  updateVolIcon(state.volume);
 
   currentLiveEnd = null;
   if (source?.type === 'live') {
@@ -261,8 +262,15 @@ els.playPause.addEventListener('click', async () => {
   await render();
 });
 
+const volIcon = document.getElementById('vol-icon');
+function updateVolIcon(v) {
+  volIcon.textContent = v === 0 ? '🔇' : v < 0.5 ? '🔉' : '🔊';
+}
+
 els.volume.addEventListener('input', async () => {
-  await send(MessageType.SET_VOLUME, { volume: Number(els.volume.value) });
+  const v = Number(els.volume.value);
+  updateVolIcon(v);
+  await send(MessageType.SET_VOLUME, { volume: v });
 });
 
 els.npFavorite.addEventListener('click', async () => {
