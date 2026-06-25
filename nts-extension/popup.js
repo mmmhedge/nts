@@ -36,8 +36,11 @@ function itemRow({ title, sub, artworkUrl, onClick }) {
   const img = document.createElement('img');
   img.src = artworkUrl || '';
   const text = document.createElement('div');
-  text.className = 'item-title';
-  text.textContent = title;
+  text.className = 'item-text';
+  const titleEl = document.createElement('div');
+  titleEl.className = 'item-title';
+  titleEl.textContent = title;
+  text.appendChild(titleEl);
   if (sub) {
     const subEl = document.createElement('div');
     subEl.className = 'item-sub';
@@ -177,40 +180,33 @@ function renderSearchResults(results) {
   els.searchResults.innerHTML = '';
   results.forEach((r) => {
     const li = document.createElement('li');
-    li.style.display = 'block';
-    li.style.cursor = 'default';
+    li.className = 'search-result';
 
     const img = document.createElement('img');
     img.src = r.artworkUrl || '';
-    img.style.cssFloat = 'left';
-    img.style.marginRight = '8px';
+
+    const text = document.createElement('div');
+    text.className = 'search-result-text';
 
     const title = document.createElement('div');
-    title.className = 'item-title';
+    title.className = 'search-title';
     title.textContent = r.title;
 
-    const sub = document.createElement('div');
-    sub.className = 'item-sub';
-    sub.textContent = [r.type, r.location, r.date].filter(Boolean).join(' · ');
-
-    if (r.genres.length) {
-      const genreEl = document.createElement('div');
-      genreEl.className = 'item-sub';
-      genreEl.textContent = r.genres.join(', ');
-      sub.appendChild(genreEl);
-    }
+    const meta = document.createElement('div');
+    meta.className = 'search-meta';
+    meta.textContent = [r.type, r.location, r.date, r.genres.join(', ')].filter(Boolean).join(' · ');
 
     const links = document.createElement('div');
-    links.style.marginTop = '4px';
-    if (r.ntsUrl) links.appendChild(linkBtn('Open on NTS', r.ntsUrl));
+    links.className = 'search-links';
+    if (r.ntsUrl) links.appendChild(linkBtn('NTS', r.ntsUrl));
     if (r.mixcloudUrl) links.appendChild(linkBtn('Mixcloud', r.mixcloudUrl));
     if (r.soundcloudUrl) links.appendChild(linkBtn('SoundCloud', r.soundcloudUrl));
 
+    text.appendChild(title);
+    text.appendChild(meta);
+    if (links.children.length) text.appendChild(links);
     li.appendChild(img);
-    li.appendChild(title);
-    li.appendChild(sub);
-    li.appendChild(links);
-    li.style.overflow = 'hidden';
+    li.appendChild(text);
     els.searchResults.appendChild(li);
   });
 }

@@ -13,7 +13,7 @@
     </nav>
   </header>
 
-  <section id="now-playing" class="now-playing">
+  <section class="now-playing">
     <img id="np-artwork" alt="" />
     <div class="np-text">
       <div id="np-title">Nothing playing</div>
@@ -25,22 +25,24 @@
 
   <section class="transport">
     <button id="play-pause">▶</button>
-    <input id="volume" type="range" min="0" max="1" step="0.01" />
+    <input id="volume" type="range" min="0" max="1" step="0.01" value="1" />
   </section>
 
   <main id="tab-stations" class="tab-panel">
-    <h2>Recent</h2>
+    <div class="section-label">Recent</div>
     <ul id="history-list" class="item-list"></ul>
-    <h2>Favorites</h2>
+    <div class="section-label">Favorites</div>
     <ul id="favorites-list" class="item-list"></ul>
-    <h2>Live Channels</h2>
+    <div class="section-label">Live Channels</div>
     <ul id="live-list" class="item-list"></ul>
-    <h2>Infinite Mixtapes</h2>
+    <div class="section-label">Infinite Mixtapes</div>
     <ul id="mixtape-list" class="item-list"></ul>
   </main>
 
   <main id="tab-search" class="tab-panel hidden">
-    <input id="search-input" type="text" placeholder="Search shows & episodes" />
+    <div class="search-wrap">
+      <input id="search-input" type="text" placeholder="Search shows & episodes…" />
+    </div>
     <ul id="search-results" class="item-list"></ul>
   </main>
 
