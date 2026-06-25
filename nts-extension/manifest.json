@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Tuner (NTS-compatible, unofficial)",
+  "name": "Tuna",
   "version": "0.1.0",
-  "description": "Unofficial player for NTS live channels and Infinite Mixtapes. Not affiliated with NTS.",
+  "description": "Unofficial extension for nts.live -- enjoy",
   "action": { "default_popup": "popup.html" },
   "background": { "service_worker": "background.js", "type": "module" },
   "permissions": ["offscreen", "storage", "alarms", "notifications"],
