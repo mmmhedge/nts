@@ -104,10 +104,12 @@ function parseSearchResult(entry) {
   };
 }
 
-// UNVERIFIED: confirm path, params, and response shape via network tab on nts.live/search.
-export async function search(query, types = ['show', 'episode']) {
-  const params = new URLSearchParams({ q: query });
-  types.forEach((t) => params.append('types[]', t));
+// Endpoint and params verified from real network traffic on nts.live/search.
+const SEARCH_TYPES = ['show', 'episode', 'collection', 'video', 'artist', 'project', 'podcast'];
+
+export async function search(query, { offset = 0, limit = 36 } = {}) {
+  const params = new URLSearchParams({ q: query, version: '2', offset, limit });
+  SEARCH_TYPES.forEach((t) => params.append('types[]', t));
   const json = await getJson(`${API_BASE}/search?${params.toString()}`);
   const results = json.results || json.data || [];
   return results.map(parseSearchResult);
