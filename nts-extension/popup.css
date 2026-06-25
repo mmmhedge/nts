@@ -102,27 +102,11 @@ nav {
   letter-spacing: 0.04em;
 }
 
-#np-favorite {
-  background: none;
-  border: none;
-  color: #333;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px;
-  flex-shrink: 0;
-  transition: color 0.15s;
-}
-
-#np-favorite:hover { color: #888; }
-#np-favorite.active { color: #fff; }
-
-/* ── Transport ── */
-.transport {
+.np-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-bottom: 1px solid #1a1a1a;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 #play-pause {
@@ -137,7 +121,6 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
 }
 
@@ -146,23 +129,18 @@ nav {
   color: #000;
 }
 
-#volume {
-  flex: 1;
-  -webkit-appearance: none;
-  height: 2px;
-  background: #333;
-  outline: none;
+#np-favorite {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 16px;
   cursor: pointer;
+  padding: 4px;
+  transition: color 0.15s;
 }
 
-#volume::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 10px;
-  height: 10px;
-  background: #fff;
-  border-radius: 50%;
-  cursor: pointer;
-}
+#np-favorite:hover { color: #888; }
+#np-favorite.active { color: #fff; }
 
 /* ── Station list panels ── */
 main {
