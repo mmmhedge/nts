@@ -8,7 +8,7 @@ const DEFAULT_STATE = {
   history: [],           // same shape, most recent first, capped
 };
 
-const HISTORY_LIMIT = 10;
+const HISTORY_LIMIT = 2;
 
 export async function getState() {
   const stored = await chrome.storage.local.get('ntsState');
