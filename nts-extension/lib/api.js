@@ -85,22 +85,20 @@ export async function fetchEpisodes(alias, { offset = 0, limit = 20 } = {}) {
   return json.results || json.data || [];
 }
 
+// Verified against real /api/v2/search response.
 function parseSearchResult(entry) {
-  const isEpisode = firstDefined(entry.episode_alias, entry.type === 'episode');
+  const sources = entry.audio_sources || [];
   return {
-    type: isEpisode ? 'episode' : 'show',
-    title: firstDefined(entry.name, entry.title, entry.broadcast_title),
-    host: firstDefined(entry.host, entry.location_long, entry.subtitle),
-    date: firstDefined(entry.broadcast_date, entry.date, entry.created),
-    artworkUrl: firstDefined(
-      entry.media?.picture_large,
-      entry.artwork_url,
-      entry.image
-    ),
-    ntsUrl: firstDefined(entry.url, entry.share_url),
-    mixcloudUrl: entry.mixcloud_url || entry.embeds?.mixcloud,
-    soundcloudUrl: entry.soundcloud_url || entry.embeds?.soundcloud,
-    tracklist: entry.tracklist || entry.embeds?.tracklist || null,
+    type: entry.article_type,
+    title: entry.title,
+    location: entry.location,
+    date: entry.local_date,
+    description: entry.description?.highlight_plain || '',
+    artworkUrl: entry.image?.large,
+    ntsUrl: entry.article?.path ? `https://www.nts.live${entry.article.path}` : null,
+    mixcloudUrl: sources.find((s) => s.source === 'mixcloud')?.url || null,
+    soundcloudUrl: sources.find((s) => s.source === 'soundcloud')?.url || null,
+    genres: (entry.genres || []).map((g) => g.name),
   };
 }
 

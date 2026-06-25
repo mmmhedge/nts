@@ -179,17 +179,29 @@ function renderSearchResults(results) {
     const li = document.createElement('li');
     li.style.display = 'block';
     li.style.cursor = 'default';
+
     const img = document.createElement('img');
     img.src = r.artworkUrl || '';
-    img.style.float = 'left';
+    img.style.cssFloat = 'left';
+    img.style.marginRight = '8px';
+
     const title = document.createElement('div');
     title.className = 'item-title';
     title.textContent = r.title;
+
     const sub = document.createElement('div');
     sub.className = 'item-sub';
-    sub.textContent = [r.host, r.date].filter(Boolean).join(' · ');
+    sub.textContent = [r.type, r.location, r.date].filter(Boolean).join(' · ');
+
+    if (r.genres.length) {
+      const genreEl = document.createElement('div');
+      genreEl.className = 'item-sub';
+      genreEl.textContent = r.genres.join(', ');
+      sub.appendChild(genreEl);
+    }
 
     const links = document.createElement('div');
+    links.style.marginTop = '4px';
     if (r.ntsUrl) links.appendChild(linkBtn('Open on NTS', r.ntsUrl));
     if (r.mixcloudUrl) links.appendChild(linkBtn('Mixcloud', r.mixcloudUrl));
     if (r.soundcloudUrl) links.appendChild(linkBtn('SoundCloud', r.soundcloudUrl));
@@ -198,13 +210,7 @@ function renderSearchResults(results) {
     li.appendChild(title);
     li.appendChild(sub);
     li.appendChild(links);
-
-    if (Array.isArray(r.tracklist) && r.tracklist.length) {
-      const tl = document.createElement('ul');
-      tl.className = 'item-list';
-      r.tracklist.forEach((track) => tl.appendChild(trackRow(track)));
-      li.appendChild(tl);
-    }
+    li.style.overflow = 'hidden';
     els.searchResults.appendChild(li);
   });
 }
@@ -219,26 +225,6 @@ function linkBtn(label, url) {
   return a;
 }
 
-function trackRow(track) {
-  const artist = track.artist || track.artists?.join(', ') || '';
-  const title = track.title || track.name || '';
-  const query = encodeURIComponent(`${artist} ${title}`.trim());
-  const li = document.createElement('li');
-  li.style.cursor = 'default';
-  const text = document.createElement('span');
-  text.className = 'item-sub';
-  text.textContent = `${artist} – ${title}`;
-  li.appendChild(text);
-  li.appendChild(linkBtn('Discogs', `https://www.discogs.com/search/?q=${query}`));
-  li.appendChild(linkBtn('Spotify', `https://open.spotify.com/search/${query}`));
-  li.appendChild(linkBtn('YouTube', `https://www.youtube.com/results?search_query=${query}`));
-  const copyBtn = document.createElement('button');
-  copyBtn.className = 'link-btn';
-  copyBtn.textContent = 'Copy';
-  copyBtn.addEventListener('click', () => navigator.clipboard.writeText(`${artist} - ${title}`));
-  li.appendChild(copyBtn);
-  return li;
-}
 
 let searchDebounce = null;
 els.searchInput.addEventListener('input', () => {
