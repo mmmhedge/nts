@@ -50,7 +50,7 @@ nav {
 
 .tab-btn.active {
   color: #fff;
-  border-bottom: 2px solid #f00;
+  border-bottom: 2px solid #a00;
 }
 
 /* ── Now Playing ── */
@@ -97,7 +97,7 @@ nav {
 
 #np-remaining {
   font-size: 10px;
-  color: #f00;
+  color: #a00;
   margin-top: 2px;
   letter-spacing: 0.04em;
 }
@@ -114,7 +114,7 @@ nav {
 }
 
 #np-favorite:hover { color: #888; }
-#np-favorite.active { color: #f00; }
+#np-favorite.active { color: #a00; }
 
 /* ── Transport ── */
 .transport {
@@ -249,7 +249,7 @@ main::-webkit-scrollbar { display: none; }
 }
 
 #search-input::placeholder { color: #444; }
-#search-input:focus { border-color: #f00; }
+#search-input:focus { border-color: #a00; }
 
 /* ── Search results ── */
 .search-result {
@@ -310,7 +310,7 @@ main::-webkit-scrollbar { display: none; }
   transition: border-color 0.15s, color 0.15s;
 }
 
-.link-btn:hover { border-color: #f00; color: #f00; }
+.link-btn:hover { border-color: #a00; color: #a00; }
 
 /* ── Footer ── */
 footer {

@@ -154,7 +154,7 @@ function tickRemaining() {
 async function renderNowPlaying(state) {
   const source = state.source;
   els.npTitle.textContent = source ? source.title : 'Nothing playing';
-  els.npArtwork.src = source?.artworkUrl || '';
+  els.npArtwork.src = source?.artworkUrl || 'icons/48.png';
   els.npSub.textContent = source ? (source.type === 'live' ? `NTS ${source.id}` : 'Infinite Mixtape') : '';
   els.playPause.textContent = state.playing ? '⏸' : '▶';
   els.volume.value = state.volume;
