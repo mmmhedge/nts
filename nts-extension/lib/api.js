@@ -55,22 +55,16 @@ export async function fetchLive() {
   return results.map(parseLiveChannel);
 }
 
+// Verified against real /api/v2/mixtapes response.
+// id = mixtape_alias, artwork at entry.media.picture_large, no genre/mood tags.
 function parseMixtape(entry) {
   return {
-    id: firstDefined(entry.alias, entry.id, entry.slug),
-    title: firstDefined(entry.title, entry.name),
+    id: entry.mixtape_alias,
+    title: entry.title,
+    subtitle: entry.subtitle,
     description: entry.description,
-    tags: firstDefined(entry.mood, entry.genre, entry.tags) || [],
-    artworkUrl: firstDefined(
-      entry.media?.picture_large,
-      entry.artwork_url,
-      entry.image
-    ),
-    streamUrl: firstDefined(
-      entry.audio_stream_endpoint,
-      entry.audioStreamEndpoint,
-      entry.stream_url
-    ),
+    artworkUrl: entry.media?.picture_large,
+    streamUrl: entry.audio_stream_endpoint,
   };
 }
 

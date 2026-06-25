@@ -16,7 +16,7 @@ const els = {
   favoritesList: document.getElementById('favorites-list'),
   liveList: document.getElementById('live-list'),
   mixtapeList: document.getElementById('mixtape-list'),
-  mixtapeFilters: document.getElementById('mixtape-filters'),
+
   searchInput: document.getElementById('search-input'),
   searchResults: document.getElementById('search-results'),
   errorBanner: document.getElementById('error-banner'),
@@ -24,7 +24,6 @@ const els = {
 
 let liveChannels = [];
 let mixtapes = [];
-let activeTag = null;
 let remainingTimer = null;
 let currentLiveEnd = null;
 
@@ -66,14 +65,8 @@ function liveSourceFromChannel(channel) {
   };
 }
 
-function mixtapeSource(mixtape) {
-  return {
-    type: 'mixtape',
-    id: mixtape.id,
-    title: mixtape.title,
-    artworkUrl: mixtape.artworkUrl,
-    streamUrl: mixtape.streamUrl,
-  };
+function mixtapeSource(m) {
+  return { type: 'mixtape', id: m.id, title: m.title, artworkUrl: m.artworkUrl, streamUrl: m.streamUrl };
 }
 
 function renderLive() {
@@ -91,33 +84,17 @@ function renderLive() {
 }
 
 function renderMixtapes() {
-  const tags = new Set();
-  mixtapes.forEach((m) => m.tags.forEach((t) => tags.add(t)));
-  els.mixtapeFilters.innerHTML = '';
-  [...tags].forEach((tag) => {
-    const btn = document.createElement('button');
-    btn.textContent = tag;
-    btn.className = activeTag === tag ? 'active' : '';
-    btn.addEventListener('click', () => {
-      activeTag = activeTag === tag ? null : tag;
-      renderMixtapes();
-    });
-    els.mixtapeFilters.appendChild(btn);
-  });
-
   els.mixtapeList.innerHTML = '';
-  mixtapes
-    .filter((m) => !activeTag || m.tags.includes(activeTag))
-    .forEach((m) => {
-      els.mixtapeList.appendChild(
-        itemRow({
-          title: m.title,
-          sub: m.tags.join(', '),
-          artworkUrl: m.artworkUrl,
-          onClick: () => playSource(mixtapeSource(m)),
-        })
-      );
-    });
+  mixtapes.forEach((m) => {
+    els.mixtapeList.appendChild(
+      itemRow({
+        title: m.title,
+        sub: m.subtitle,
+        artworkUrl: m.artworkUrl,
+        onClick: () => playSource(mixtapeSource(m)),
+      })
+    );
+  });
 }
 
 async function renderHistoryAndFavorites() {
