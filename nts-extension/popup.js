@@ -279,9 +279,10 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 async function init() {
-  try {
-    [liveChannels, mixtapes] = await Promise.all([fetchLive(), fetchMixtapes()]);
-  } catch (err) {
+  const [liveResult, mixtapeResult] = await Promise.allSettled([fetchLive(), fetchMixtapes()]);
+  if (liveResult.status === 'fulfilled') liveChannels = liveResult.value;
+  if (mixtapeResult.status === 'fulfilled') mixtapes = mixtapeResult.value;
+  if (liveResult.status === 'rejected' || mixtapeResult.status === 'rejected') {
     showError("Couldn't reach NTS.");
   }
   renderLive();

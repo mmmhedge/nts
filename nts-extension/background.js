@@ -10,15 +10,24 @@ const LIVE_POLL_ALARM = 'nts-live-poll';
 const LIVE_POLL_PERIOD_MIN = 0.5; // 30s, the chrome.alarms floor
 
 let lastLiveTitleByChannel = {};
+let offscreenReady = false;
+let offscreenReadyResolvers = [];
+
+function waitForOffscreenReady() {
+  if (offscreenReady) return Promise.resolve();
+  return new Promise((resolve) => offscreenReadyResolvers.push(resolve));
+}
 
 async function ensureOffscreenDocument() {
   const has = await chrome.offscreen.hasDocument?.();
-  if (has) return;
+  if (has) return waitForOffscreenReady();
+  offscreenReady = false;
   await chrome.offscreen.createDocument({
     url: OFFSCREEN_URL,
     reasons: ['AUDIO_PLAYBACK'],
     justification: 'Plays NTS live/mixtape audio continuously while the popup is closed.',
   });
+  return waitForOffscreenReady();
 }
 
 function toOffscreen(type, payload) {
@@ -45,7 +54,7 @@ async function pollLive() {
     for (const channel of channels) {
       const prevTitle = lastLiveTitleByChannel[channel.channelName];
       if (prevTitle && channel.now.title && prevTitle !== channel.now.title) {
-        chrome.notifications.create({
+        chrome.notifications.create(`nts-now-playing-${channel.channelName}`, {
           type: 'basic',
           iconUrl: 'icons/48.png',
           title: `NTS ${channel.channelName} now playing`,
@@ -72,6 +81,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 async function handlePopupMessage(message, sendResponse) {
+  try {
   const { type, payload } = message;
   switch (type) {
     case MessageType.STATE_REQUEST: {
@@ -84,7 +94,7 @@ async function handlePopupMessage(message, sendResponse) {
       const state = await getState();
       await toOffscreen(MessageType.SET_SOURCE, { ...payload, volume: state.volume, autoplay: true });
       await setState({ source: payload, playing: true });
-      await addToHistory({ type: payload.type, id: payload.id, title: payload.title, artworkUrl: payload.artworkUrl });
+      await addToHistory({ type: payload.type, id: payload.id, title: payload.title, artworkUrl: payload.artworkUrl, streamUrl: payload.streamUrl });
       await updateBadge(true);
       await setLivePolling(payload.type === 'live');
       sendResponse({ ok: true });
@@ -122,6 +132,9 @@ async function handlePopupMessage(message, sendResponse) {
     default:
       sendResponse({ ok: false, error: `unhandled type ${type}` });
   }
+  } catch (err) {
+    sendResponse({ ok: false, error: String(err) });
+  }
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -131,8 +144,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         .includes(message.type) &&
       sender.url?.includes(OFFSCREEN_URL)) {
     // Status echo from the offscreen doc (e.g. media-key driven play/pause).
+    if (message.type === MessageType.OFFSCREEN_READY) {
+      offscreenReady = true;
+      offscreenReadyResolvers.forEach((r) => r());
+      offscreenReadyResolvers = [];
+    }
     if (message.type === MessageType.PLAY) setState({ playing: true }).then(() => updateBadge(true));
     if (message.type === MessageType.PAUSE) setState({ playing: false }).then(() => updateBadge(false));
+    if (message.type === MessageType.AUDIO_ERROR) setState({ playing: false }).then(() => updateBadge(false));
     return false;
   }
   handlePopupMessage(message, sendResponse);
