@@ -144,7 +144,7 @@ nav {
 
 /* ── Station list panels ── */
 main {
-  max-height: 340px;
+  max-height: 300px;
   overflow-y: auto;
   scrollbar-width: none;
 }
