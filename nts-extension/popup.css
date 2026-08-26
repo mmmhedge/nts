@@ -305,10 +305,10 @@ footer {
   gap: 12px;
 }
 .bmc-link {
-  color: #555;
+  color: #444;
   text-decoration: none;
-  font-size: 9px;
-  letter-spacing: 0.08em;
+  font-size: 8px;
+  letter-spacing: 0.06em;
 }
 .bmc-link:hover { color: #fff; }
 
