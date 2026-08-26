@@ -299,7 +299,18 @@ footer {
   letter-spacing: 0.08em;
   border-top: 1px solid #1a1a1a;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
+.bmc-link {
+  color: #555;
+  text-decoration: none;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+.bmc-link:hover { color: #fff; }
 
 .error {
   display: block;
