@@ -20,7 +20,13 @@ function waitForOffscreenReady() {
 
 async function ensureOffscreenDocument() {
   const has = await chrome.offscreen.hasDocument?.();
-  if (has) return waitForOffscreenReady();
+  if (has) {
+    // Document already exists — if it sent OFFSCREEN_READY before this
+    // service worker instance started, we'll never see it again. Treat
+    // an existing document as ready.
+    offscreenReady = true;
+    return;
+  }
   offscreenReady = false;
   await chrome.offscreen.createDocument({
     url: OFFSCREEN_URL,

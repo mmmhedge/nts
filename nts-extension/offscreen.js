@@ -53,7 +53,9 @@ chrome.runtime.onMessage.addListener((message) => {
   const { type, payload } = message;
   switch (type) {
     case MessageType.SET_SOURCE:
+      audio.pause();
       audio.src = payload.streamUrl;
+      audio.load();
       audio.volume = payload.volume ?? audio.volume;
       setMediaSession(payload);
       if (payload.autoplay) {
