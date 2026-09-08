@@ -7,23 +7,36 @@ const audio = new Audio();
 audio.crossOrigin = 'anonymous';
 
 let retryTimer = null;
+let retryCount = 0;
+let currentSrc = null;
+
+function cancelRetry() {
+  clearTimeout(retryTimer);
+  retryTimer = null;
+}
 
 function scheduleRetry() {
-  clearTimeout(retryTimer);
+  cancelRetry();
+  // Don't retry if we deliberately have no source
+  if (!currentSrc) return;
+  const delay = Math.min(1500 * Math.pow(1.5, retryCount), 15000);
+  retryCount = Math.min(retryCount + 1, 6);
   retryTimer = setTimeout(() => {
-    if (audio.src) {
+    if (currentSrc && audio.src === currentSrc) {
       audio.load();
       audio.play().catch(() => {});
     }
-  }, 3000);
+  }, delay);
 }
 
 audio.addEventListener('error', () => {
+  if (!currentSrc) return;
   chrome.runtime.sendMessage({ type: MessageType.AUDIO_ERROR, target: 'background' });
   scheduleRetry();
 });
-audio.addEventListener('stalled', scheduleRetry);
-audio.addEventListener('playing', () => clearTimeout(retryTimer));
+audio.addEventListener('stalled', () => { if (currentSrc) scheduleRetry(); });
+audio.addEventListener('waiting', () => { if (currentSrc) scheduleRetry(); });
+audio.addEventListener('playing', () => { cancelRetry(); retryCount = 0; });
 
 function setMediaSession(meta) {
   if (!('mediaSession' in navigator) || !meta) return;
@@ -53,8 +66,11 @@ chrome.runtime.onMessage.addListener((message) => {
   const { type, payload } = message;
   switch (type) {
     case MessageType.SET_SOURCE:
+      cancelRetry();
+      retryCount = 0;
       audio.pause();
-      audio.src = payload.streamUrl;
+      currentSrc = payload.streamUrl;
+      audio.src = currentSrc;
       audio.load();
       audio.volume = payload.volume ?? audio.volume;
       setMediaSession(payload);
@@ -69,6 +85,8 @@ chrome.runtime.onMessage.addListener((message) => {
       audio.pause();
       break;
     case MessageType.STOP:
+      cancelRetry();
+      currentSrc = null;
       audio.pause();
       audio.removeAttribute('src');
       break;

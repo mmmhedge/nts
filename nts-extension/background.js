@@ -36,8 +36,14 @@ async function ensureOffscreenDocument() {
   return waitForOffscreenReady();
 }
 
-function toOffscreen(type, payload) {
-  return chrome.runtime.sendMessage({ type, payload, target: 'offscreen' });
+async function toOffscreen(type, payload) {
+  try {
+    return await chrome.runtime.sendMessage({ type, payload, target: 'offscreen' });
+  } catch (e) {
+    // Offscreen doc may have just been created — wait a tick and retry once
+    await new Promise((r) => setTimeout(r, 200));
+    return chrome.runtime.sendMessage({ type, payload, target: 'offscreen' }).catch(() => {});
+  }
 }
 
 async function updateBadge(playing) {
