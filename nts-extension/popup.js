@@ -53,6 +53,11 @@ function itemRow({ title, sub, artworkUrl, onClick }) {
 }
 
 async function playSource(source) {
+  // Update UI immediately so the user sees the change before the stream loads
+  els.npTitle.textContent = source.title;
+  els.npArtwork.src = source.artworkUrl || 'icons/48.png';
+  els.npSub.textContent = source.type === 'live' ? `NTS ${source.id}` : 'Infinite Mixtape';
+  els.playPause.textContent = '⏸';
   await send(MessageType.SET_SOURCE, source);
   await render();
 }
