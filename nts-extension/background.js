@@ -78,6 +78,17 @@ async function pollLive() {
     await setState({ liveChannels: channels });
     if (state.source?.type === 'live') {
       const active = channels.find((c) => String(c.channelName) === String(state.source.id));
+      if (active) {
+        // Keep source metadata in sync with live data so now-playing stays current
+        const updatedSource = {
+          ...state.source,
+          title: active.now.title || state.source.title,
+          artworkUrl: active.now.artworkUrl || state.source.artworkUrl,
+        };
+        await setState({ source: updatedSource });
+        // Update mediaSession metadata without interrupting playback
+        toOffscreen(MessageType.NOW_PLAYING_UPDATE, updatedSource).catch(() => {});
+      }
       chrome.runtime.sendMessage({
         type: MessageType.NOW_PLAYING_UPDATE,
         payload: { source: state.source, live: active },

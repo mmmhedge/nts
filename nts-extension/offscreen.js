@@ -93,6 +93,9 @@ chrome.runtime.onMessage.addListener((message) => {
     case MessageType.SET_VOLUME:
       audio.volume = payload.volume;
       break;
+    case MessageType.NOW_PLAYING_UPDATE:
+      setMediaSession(payload);
+      break;
     default:
       break;
   }
