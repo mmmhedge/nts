@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tuna",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Unofficial extension for nts.live -- enjoy",
   "action": { "default_popup": "popup.html" },
   "background": { "service_worker": "background.js", "type": "module" },
